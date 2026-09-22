@@ -8,7 +8,11 @@ import { applyDemoAccounts, demoEmail, demoName, DEMO_PEOPLE } from './demo.js';
 export async function seed() {
   if (config.production) throw new Error('Development seed is forbidden in production');
   await migrate();
-  if ((await db.query('SELECT 1 FROM countries LIMIT 1')).length) {
+  // Whether the seed has run is decided by the accounts it creates, not by reference
+  // data. Migration 018 fills countries, cities and currencies, so asking about those
+  // answered "already seeded" on an empty database from the moment it landed - the seed
+  // then created no users at all and every test that signs in failed with a 401.
+  if ((await db.query('SELECT 1 FROM users LIMIT 1')).length) {
     console.info('Database already initialized; seed skipped.');
     return;
   }
