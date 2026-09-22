@@ -1,0 +1,46 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!-- These live here, not in the app's manifest, because a clean prebuild throws
+       android/ away and builds it again. A library manifest is merged into that fresh
+       project every time, so this is the only edit that survives. -->
+
+  <!-- Ring at the minute asked for instead of whenever Doze feels like it. Android 12 and
+       up hands this to the user to grant; AlarmScheduler falls back to an inexact alarm
+       while it is missing. -->
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+  <!-- Take over the lock screen. Android 14 and up does not grant this to a fitness app
+       automatically; without it the alarm still rings as a heads-up notification. -->
+  <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+  <!-- Alarms are armed with AlarmManager, which forgets everything when the phone
+       restarts, so BootReceiver arms them again. -->
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+
+  <application>
+    <receiver
+      android:name=".AlarmReceiver"
+      android:enabled="true"
+      android:exported="false" />
+
+    <receiver
+      android:name=".BootReceiver"
+      android:enabled="true"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        <action android:name="android.intent.action.TIME_SET" />
+        <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+      </intent-filter>
+    </receiver>
+
+    <service
+      android:name=".AlarmService"
+      android:enabled="true"
+      android:exported="false"
+      android:foregroundServiceType="mediaPlayback" />
+  </application>
+</manifest>

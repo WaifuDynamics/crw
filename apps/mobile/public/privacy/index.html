@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy · CRW+</title>
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #08090B;
+      --card-bg: #12141A;
+      --card-border: #232733;
+      --ink: #F7F8FA;
+      --muted: #969AA3;
+      --blue: #168BFF;
+      --blue-hover: #0077F0;
+      --line: #2B2E34;
+      --danger: #EF4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --warning: #F59E0B;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --success: #10B981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #F8F9FA;
+        --card-bg: #FFFFFF;
+        --card-border: #E5E7EB;
+        --ink: #111827;
+        --muted: #4B5563;
+        --line: #E5E7EB;
+        --danger-bg: #FEE2E2;
+        --warning-bg: #FEF3C7;
+        --success-bg: #D1FAE5;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--blue);
+    }
+    h1 {
+      font-size: 32px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+    h2 {
+      font-size: 21px;
+      margin: 36px 0 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 8px;
+    }
+    p, li {
+      margin: 0 0 12px;
+      color: var(--ink);
+    }
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul, ol {
+      padding-left: 22px;
+      margin: 8px 0 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .callout {
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+    .callout-important {
+      background: var(--danger-bg);
+      border-left: 4px solid var(--danger);
+    }
+    .callout-warning {
+      background: var(--warning-bg);
+      border-left: 4px solid var(--warning);
+    }
+    .callout-info {
+      background: var(--card-bg);
+      border-left: 4px solid var(--blue);
+      border: 1px solid var(--card-border);
+      border-left-width: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+    }
+    th {
+      background: var(--card-bg);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--blue-hover);
+      text-decoration: none;
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      text-decoration: none;
+    }
+    footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .footer-col h4 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+    }
+    .footer-col a {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .footer-col a:hover {
+      color: var(--blue);
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="/" class="brand">
+        <img src="/icons/icon-192.png" alt="CRW+ Logo" onerror="this.style.display='none'">
+        <span>CRW+</span>
+      </a>
+      <span class="badge">Legal & Privacy</span>
+    </header>
+
+    <h1>Privacy Policy</h1>
+    <div class="updated">Last updated: September 17, 2026 · Effective immediately</div>
+
+    
+<p>This Privacy Policy explains how <strong>CRW+</strong> ("we", "our", or "the Platform") collects, uses, protects, and deletes personal data when you use the CRW+ mobile application, website, and related services. CRW+ is operated by Michal / konekocode, based in Poland (European Union). If you have any privacy questions or wish to exercise your legal rights, contact us at <a href="mailto:support@crw-plus.com"><strong>support@crw-plus.com</strong></a>.</p>
+
+<h2>1. Who Controls Your Data</h2>
+<p>The data controller responsible for your personal information under the General Data Protection Regulation (GDPR / RODO) is:</p>
+<div class="card">
+  <strong>CRW+ Team (konekocode)</strong><br>
+  Operating Country: Poland, European Union<br>
+  Official Contact Email: <a href="mailto:support@crw-plus.com">support@crw-plus.com</a><br>
+  Alternate Contact: <a href="mailto:support@sport.konekocode.pl">support@sport.konekocode.pl</a>
+</div>
+
+<h2>2. Age Requirement (13+)</h2>
+<p>CRW+ is strictly intended for individuals aged <strong>13 or older</strong>. If your local jurisdiction requires a higher age of digital consent or parental authorization (e.g. 16 in certain EU member states), you may use CRW+ only if those requirements are met. We do not knowingly collect personal data from children under 13. See our <a href="/children-safety">Children's Safety Policy</a>.</p>
+
+<h2>3. Personal Data We Collect</h2>
+<ul>
+  <li><strong>Account Credentials:</strong> First name, last name, email address, password hash, unique <code>@username</code> handle, and Google Sign-In identifiers (if used).</li>
+  <li><strong>Optional Profile Data:</strong> Profile photo, bio, birth year/age, weight, height, country, and city.</li>
+  <li><strong>Workout &amp; Athletic Performance:</strong> Exercise activity type (running, walking, cycling, hiking, strength reps), session timestamps, duration, distance, pace, speed, calculated calories burned, rep counts, and achievements.</li>
+  <li><strong>Location &amp; GPS Data:</strong> Precise GPS coordinates, elevation, and route polylines collected <strong>exclusively during active outdoor workout sessions</strong> when you grant location permission.</li>
+  <li><strong>Connected Health Platforms (Apple Health / HealthKit &amp; Android Health Connect):</strong> Workout records, heart rate, daily steps, active energy, and distance. Integration is 100% optional. We <em>never</em> read sleep, reproductive health, or clinical records. See <a href="/health-data">Health Data Policy</a>.</li>
+  <li><strong>Social &amp; Community Content:</strong> Published workout summaries, leaderboards, club memberships, and community posts.</li>
+  <li><strong>Safety Data:</strong> Location coordinates packaged into a pre-made SMS message when you trigger the optional SOS emergency feature.</li>
+  <li><strong>Marketing Preferences:</strong> Status of your opt-in consent for promotional updates.</li>
+</ul>
+
+<h2>4. Purposes &amp; Legal Bases for Processing</h2>
+<p>Under GDPR Article 6 and Article 9, we process your personal data under the following legal bases:</p>
+<ul>
+  <li><strong>Performance of Contract (Art. 6(1)(b) GDPR):</strong> To create your account, record and display workouts, calculate statistics, maintain leaderboards, and deliver core app features.</li>
+  <li><strong>Explicit Consent (Art. 6(1)(a) &amp; Art. 9(2)(a) GDPR):</strong> For reading connected health data (Apple Health / Health Connect), accessing background GPS for route tracking, and sending optional marketing newsletters. Consent may be withdrawn at any time.</li>
+  <li><strong>Legitimate Interests (Art. 6(1)(f) GDPR):</strong> To protect platform integrity, prevent cheating and abuse, moderate prohibited content, and maintain service security.</li>
+  <li><strong>Legal Obligations (Art. 6(1)(c) GDPR):</strong> To comply with mandatory statutory, tax, or legal accountability requirements.</li>
+</ul>
+
+<h2>5. Server Locations &amp; Data Transfers</h2>
+<p>All primary servers, databases, and media storage are located within <strong>Poland and the European Union</strong>. We do not transfer your personal data to non-adequate third countries without standard contractual clauses and rigorous technical encryption safeguards.</p>
+
+<h2>6. Data Recipients &amp; Third Parties</h2>
+<p>We do not sell, rent, or trade your personal data. Data is shared strictly with necessary infrastructure service providers:</p>
+<ul>
+  <li><strong>Hosting &amp; Cloud Infrastructure:</strong> Dedicated EU server providers for database and API execution.</li>
+  <li><strong>Storage:</strong> Private S3-compatible encrypted media storage for profile photos and route drawings.</li>
+  <li><strong>Push Notifications:</strong> Apple APNs and Google Firebase Cloud Messaging strictly for dispatching notifications you enabled.</li>
+</ul>
+<p><strong>Zero Ad Tracking &amp; Zero Behavioral Profiling:</strong> We do not share your fitness history, health data, or location routes with advertising brokers or data aggregators.</p>
+
+<h2>7. Data Retention &amp; 7-Day Backup Purge</h2>
+<p>Your data is retained for as long as your account remains active. When you request account deletion:</p>
+<ul>
+  <li>Your account, profile, workouts, GPS routes, and social entries are permanently deleted from active production databases immediately.</li>
+  <li>Residual encrypted technical database backups are automatically purged within a maximum of <strong>7 days</strong>.</li>
+  <li>Any statutory records required by mandatory commercial/tax laws are retained strictly for the statutory limitation period (no fitness or GPS data is ever kept).</li>
+</ul>
+
+<h2>8. Your Rights Under GDPR &amp; Global Privacy Laws</h2>
+<p>You have the right to: access your personal data, rectify inaccurate data, demand complete erasure ("Right to be Forgotten"), restrict processing, object to processing, and request data portability in a structured format. To exercise your rights, visit <a href="/delete-account">Account Deletion</a> or email <a href="mailto:support@crw-plus.com">support@crw-plus.com</a>. You also have the right to lodge a complaint with the Polish Data Protection Authority (Urząd Ochrony Danych Osobowych - UODO).</p>
+
+<h2>9. Contact Privacy Team</h2>
+<p>For any privacy-related inquiry or request: <a href="mailto:support@crw-plus.com">support@crw-plus.com</a>.</p>
+
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Legal &amp; Operator</h4>
+          <a href="/terms">Terms of Service</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/legal">Legal / Operator Info</a>
+          <a href="/data-safety">Data Safety Summary</a>
+          <a href="/children-safety">Children's Safety (13+)</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community &amp; Content</h4>
+          <a href="/community-guidelines">Community Guidelines</a>
+          <a href="/moderation">Reporting &amp; Moderation</a>
+          <a href="/event-policy">Clubs &amp; Events Policy</a>
+          <a href="/copyright">Copyright &amp; IP</a>
+        </div>
+        <div class="footer-col">
+          <h4>Health &amp; Safety</h4>
+          <a href="/health-data">Health &amp; Fitness Data</a>
+          <a href="/location-data">Location &amp; GPS Policy</a>
+          <a href="/safety">SOS &amp; Safety Disclaimer</a>
+          <a href="/fitness-disclaimer">Health &amp; Fitness Disclaimer</a>
+        </div>
+        <div class="footer-col">
+          <h4>Account &amp; Help</h4>
+          <a href="/support">Support Center</a>
+          <a href="/delete-account">Account Deletion</a>
+          <a href="/marketing-preferences">Marketing Preferences</a>
+          <a href="/subscriptions">Subscriptions &amp; Billing</a>
+          <a href="/security">Vulnerability Reporting</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 CRW+ · Operated in Poland, European Union. All rights reserved.</div>
+        <div>Contact: <a href="mailto:support@crw-plus.com">support@crw-plus.com</a></div>
+      </div>
+    </footer>
+  </main>
+  
+</body>
+</html>

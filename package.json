@@ -1,0 +1,39 @@
+{
+  "name": "crw-plus",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n API,MOBILE -c blue,green \"npm run dev -w @crw/api\" \"npm run web -w @crw/mobile\"",
+    "api": "npm run dev -w @crw/api",
+    "mobile": "npm run start -w @crw/mobile",
+    "seed": "npm run seed -w @crw/api",
+    "demo:refresh": "node scripts/refresh-demo-events.mjs --apply",
+    "test": "npm run test -w @crw/api",
+    "typecheck": "npm run typecheck --workspaces",
+    "build": "npm run build -w @crw/api && npm run build -w @crw/mobile",
+    "setup": "node scripts/setup.mjs",
+    "postinstall": "node scripts/patch-compat.cjs",
+    "assets": "node scripts/assets.mjs",
+    "test:ui": "node scripts/ui-smoke.mjs",
+    "test:tracking": "node --test scripts/tracking-model.test.mjs",
+    "test:tracking:ui": "node scripts/tracking-smoke.mjs",
+    "test:pages-bar": "node scripts/pages-bar-smoke.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "concurrently": "^9.2.1",
+    "sharp": "^0.35.4",
+    "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "uuid": "11.1.1",
+    "decode-uri-component": "0.5.0"
+  },
+  "dependencies": {
+    "decode-uri-component": "0.5.0",
+    "uuid": "11.1.1"
+  }
+}

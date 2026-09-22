@@ -1,0 +1,54 @@
+# Render blueprint for the CRW+ API.
+#
+# Runs the existing Dockerfile unchanged. NODE_ENV is deliberately left unset:
+# src/config.ts requires Stripe, Resend, S3 and Redis under NODE_ENV=production,
+# so the deployment runs with development adapters (sandbox payments, console
+# mail) against a real managed Postgres. Suitable for a public demo, not for
+# real users or real payments.
+services:
+  - type: web
+    # Kept from the PACE name after the CRW+ rename: the onrender.com subdomain
+    # is derived from this, and APP_URL/ALLOWED_ORIGINS on the web deploy plus
+    # the API base URL baked into the published web bundle all point at it.
+    # Renaming the service changes the public URL and breaks both until those
+    # are updated together. (pace-api itself is taken by an unrelated service,
+    # hence the suffix.)
+    name: pace-api-tky01
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    # No dockerCommand: Render does not evaluate it through a shell, so the
+    # Dockerfile CMD (node dist/index.js) runs instead. Migrations are applied
+    # by the entry point at startup; seeding is a separate one-off task.
+    envVars:
+      # The Dockerfile sets NODE_ENV=production, which src/config.ts treats as a
+      # demand for Redis, S3, a real mail provider and a non-sandbox payment
+      # provider. Overriding it here keeps the development adapters while still
+      # running against managed Postgres.
+      - key: NODE_ENV
+        value: development
+      - key: PORT
+        value: 4000
+      - key: HOST
+        value: 0.0.0.0
+      # Supplied in the Render dashboard, not committed:
+      #   DATABASE_URL     Neon pooled connection string (append ?sslmode=require)
+      #   SESSION_SECRET   32+ random characters, kept stable across deploys
+      #   APP_URL          https://pace-web-alpha.vercel.app
+      #   API_URL          https://pace-api-tky01.onrender.com
+      #   ALLOWED_ORIGINS  https://pace-web-alpha.vercel.app
+      #   SEED_PASSWORD    password for the seeded demo accounts
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: API_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SEED_PASSWORD
+        sync: false

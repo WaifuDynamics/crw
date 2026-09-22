@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscriptions & Billing Policy · CRW+</title>
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #08090B;
+      --card-bg: #12141A;
+      --card-border: #232733;
+      --ink: #F7F8FA;
+      --muted: #969AA3;
+      --blue: #168BFF;
+      --blue-hover: #0077F0;
+      --line: #2B2E34;
+      --danger: #EF4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --warning: #F59E0B;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --success: #10B981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #F8F9FA;
+        --card-bg: #FFFFFF;
+        --card-border: #E5E7EB;
+        --ink: #111827;
+        --muted: #4B5563;
+        --line: #E5E7EB;
+        --danger-bg: #FEE2E2;
+        --warning-bg: #FEF3C7;
+        --success-bg: #D1FAE5;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--blue);
+    }
+    h1 {
+      font-size: 32px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+    h2 {
+      font-size: 21px;
+      margin: 36px 0 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 8px;
+    }
+    p, li {
+      margin: 0 0 12px;
+      color: var(--ink);
+    }
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul, ol {
+      padding-left: 22px;
+      margin: 8px 0 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .callout {
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+    .callout-important {
+      background: var(--danger-bg);
+      border-left: 4px solid var(--danger);
+    }
+    .callout-warning {
+      background: var(--warning-bg);
+      border-left: 4px solid var(--warning);
+    }
+    .callout-info {
+      background: var(--card-bg);
+      border-left: 4px solid var(--blue);
+      border: 1px solid var(--card-border);
+      border-left-width: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+    }
+    th {
+      background: var(--card-bg);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--blue-hover);
+      text-decoration: none;
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      text-decoration: none;
+    }
+    footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .footer-col h4 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+    }
+    .footer-col a {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .footer-col a:hover {
+      color: var(--blue);
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="/" class="brand">
+        <img src="/icons/icon-192.png" alt="CRW+ Logo" onerror="this.style.display='none'">
+        <span>CRW+</span>
+      </a>
+      <span class="badge">Pricing & Billing</span>
+    </header>
+
+    <h1>Subscriptions & Billing Policy</h1>
+    <div class="updated">Last updated: September 17, 2026 · Effective immediately</div>
+
+    
+<p>This policy outlines the subscription, billing, and cancellation terms applicable to future <strong>CRW+ Premium</strong> memberships.</p>
+
+<div class="callout callout-info">
+  <strong>Current Status: 100% Free Core Platform</strong><br>
+  At present, all core athletic tracking, workout analysis, social leaderboards, and club features on CRW+ are completely free. When optional paid Premium tiers are released, the following terms will apply.
+</div>
+
+<h2>1. Subscription Options &amp; Billing Cycles</h2>
+<p>Future Premium memberships may be offered on a <strong>monthly</strong> or <strong>annual</strong> recurring billing cycle. Subscription fees will be clearly displayed prior to purchase, including applicable value-added tax (VAT) based on your country of residence.</p>
+
+<h2>2. Auto-Renewal Terms</h2>
+<p>Subscriptions automatically renew at the end of each billing cycle unless cancelled at least 24 hours prior to the renewal date. Your payment method on file (via Apple App Store, Google Play Store, or secure web checkout) will be charged automatically upon renewal.</p>
+
+<h2>3. How to Cancel Your Subscription</h2>
+<p>You may cancel your subscription at any time without penalty:</p>
+<ul>
+  <li><strong>Apple App Store (iOS):</strong> Open <em>iPhone Settings &gt; Your Apple ID &gt; Subscriptions &gt; CRW+</em> &gt; Tap <em>Cancel Subscription</em>.</li>
+  <li><strong>Google Play Store (Android):</strong> Open <em>Google Play &gt; Profile icon &gt; Payments &amp; subscriptions &gt; Subscriptions &gt; CRW+</em> &gt; Tap <em>Cancel Subscription</em>.</li>
+  <li><strong>Web Checkout:</strong> Navigate to your Account Settings on <a href="https://sport.konekocode.pl">sport.konekocode.pl</a> and click "Manage Subscription".</li>
+</ul>
+<p><strong>Access After Cancellation:</strong> When you cancel, your Premium benefits remain active until the end of your current paid billing period. You will not be charged again.</p>
+
+<h2>4. Refund Policy</h2>
+<p>Subscription payments made through the Apple App Store or Google Play Store are subject to Apple's and Google's respective customer refund policies. To request a refund for an App Store or Google Play purchase, please submit a request directly through your Apple or Google account.</p>
+
+<h2>5. Price Modifications</h2>
+<p>We reserve the right to modify subscription fees. Any price change will be communicated with at least <strong>30 days advance notice</strong> via email and in-app notification. If you do not accept the new price, you may cancel prior to the effective date.</p>
+
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Legal &amp; Operator</h4>
+          <a href="/terms">Terms of Service</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/legal">Legal / Operator Info</a>
+          <a href="/data-safety">Data Safety Summary</a>
+          <a href="/children-safety">Children's Safety (13+)</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community &amp; Content</h4>
+          <a href="/community-guidelines">Community Guidelines</a>
+          <a href="/moderation">Reporting &amp; Moderation</a>
+          <a href="/event-policy">Clubs &amp; Events Policy</a>
+          <a href="/copyright">Copyright &amp; IP</a>
+        </div>
+        <div class="footer-col">
+          <h4>Health &amp; Safety</h4>
+          <a href="/health-data">Health &amp; Fitness Data</a>
+          <a href="/location-data">Location &amp; GPS Policy</a>
+          <a href="/safety">SOS &amp; Safety Disclaimer</a>
+          <a href="/fitness-disclaimer">Health &amp; Fitness Disclaimer</a>
+        </div>
+        <div class="footer-col">
+          <h4>Account &amp; Help</h4>
+          <a href="/support">Support Center</a>
+          <a href="/delete-account">Account Deletion</a>
+          <a href="/marketing-preferences">Marketing Preferences</a>
+          <a href="/subscriptions">Subscriptions &amp; Billing</a>
+          <a href="/security">Vulnerability Reporting</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 CRW+ · Operated in Poland, European Union. All rights reserved.</div>
+        <div>Contact: <a href="mailto:support@crw-plus.com">support@crw-plus.com</a></div>
+      </div>
+    </footer>
+  </main>
+  
+</body>
+</html>

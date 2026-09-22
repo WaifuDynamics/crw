@@ -1,0 +1,8 @@
+# CRW+ — Crews, events and real-world fitness
+User-agent: *
+Allow: /
+
+Sitemap: https://crw-plus.com/sitemap.xml
+
+# Plain-language summary for AI agents and crawlers:
+# https://crw-plus.com/llms.txt

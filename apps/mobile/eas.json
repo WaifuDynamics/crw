@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">=16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.crw-plus.com/v1",
+        "EXPO_PUBLIC_APP_URL": "https://app.crw-plus.com",
+        "EXPO_PUBLIC_MAPBOX_TOKEN": "pk.eyJ1IjoiNDQ4OSIsImEiOiJjbXU0Y2lhNTUwaGR1Mnpxdjc2NHh3OGxuIn0.zGbV23X0nlwl4nJFNcwj8g"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.crw-plus.com/v1",
+        "EXPO_PUBLIC_APP_URL": "https://app.crw-plus.com",
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_MAPBOX_TOKEN": "pk.eyJ1IjoiNDQ4OSIsImEiOiJjbXU0Y2lhNTUwaGR1Mnpxdjc2NHh3OGxuIn0.zGbV23X0nlwl4nJFNcwj8g"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

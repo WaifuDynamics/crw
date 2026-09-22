@@ -1,0 +1,40 @@
+node_modules/
+.env
+.env.*
+!.env.example
+dist/
+.expo/
+data/
+coverage/
+*.log
+*.tsbuildinfo
+.DS_Store
+.dependency-resolution/
+artifacts/*.json
+test-results/
+playwright-report/
+dist-native/
+*.download
+.vercel
+
+# Local-only fake data seeding (kept out of git on purpose)
+/apps/api/src/seed-rich-data.ts
+/apps/api/src/routes/fakeData.ts
+
+# Rep counter: desktop pose models are downloaded on first run; test videos stay local
+/apps/reps-counter/models/
+/apps/reps-counter/web/*.mp4
+/apps/reps-counter/web/*.webm
+
+# Local native modules build output
+apps/mobile/modules/*/android/build/
+
+# The rep counter, copied into the app by apps/mobile/scripts/embed-reps.mjs
+apps/mobile/assets/reps/
+apps/mobile/public/reps/
+apps/mobile/src/reps/embeddedFiles.ts
+__pycache__/
+
+# Android releases built on this machine (scripts/release/local-android.mjs)
+apps/mobile/dist-release/
+apps/landing/legal.zip

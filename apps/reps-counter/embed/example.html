@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Push-ups widget — example</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0; padding: 32px 20px 60px;
+    font: 15px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #f4f5f7; color: #1b1e24;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  p.lede { margin: 0 0 24px; color: #5b6270; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: #fff; border: 1px solid #e3e6eb; border-radius: 16px; padding: 16px; }
+  .card h2 { margin: 0 0 10px; font-size: 14px; color: #5b6270; font-weight: 600; }
+  pre {
+    margin: 0; padding: 12px; border-radius: 10px; background: #14171c; color: #d9e0ea;
+    font-size: 12.5px; overflow-x: auto;
+  }
+  #log { font: 12px/1.55 ui-monospace, Consolas, monospace; max-height: 420px; overflow: auto; }
+  #log div { padding: 3px 0; border-bottom: 1px solid #eef0f3; word-break: break-word; }
+  #log b { color: #0a7d45; font-weight: 600; }
+  #log .empty { color: #8a919e; border: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Push-ups widget</h1>
+  <p class="lede">This is an ordinary page with the widget embedded. Open it over HTTPS (or <code>localhost</code>) so the camera works.</p>
+
+  <div class="grid">
+    <div>
+      <!-- The whole integration is these two lines. -->
+      <div data-pushups></div>
+      <script src="https://pompki.szybki-drop.pl/embed.js" async></script>
+    </div>
+
+    <div class="card">
+      <h2>Events from the widget</h2>
+      <div id="log"><div class="empty">Waiting for the widget…</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:22px">
+    <h2>Embed code</h2>
+<pre>&lt;div data-pushups&gt;&lt;/div&gt;
+&lt;script src="https://pompki.szybki-drop.pl/embed.js" async&gt;&lt;/script&gt;</pre>
+  </div>
+</div>
+
+<script>
+  // Listening on document catches events from every widget on the page.
+  const log = document.getElementById("log");
+  const types = ["ready", "mode", "matchstart", "rep", "result", "error"];
+  for (const t of types) {
+    document.addEventListener("pushups:" + t, (e) => {
+      const empty = log.querySelector(".empty");
+      if (empty) empty.remove();
+      const row = document.createElement("div");
+      const time = new Date().toLocaleTimeString();
+      row.innerHTML = `${time} <b>${t}</b> `;
+      row.append(JSON.stringify(e.detail));
+      log.prepend(row);
+    });
+  }
+</script>
+</body>
+</html>

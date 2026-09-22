@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="appTitle">Push-ups — duel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- The camera has to run but is never shown at full size: this element sits
+     off-screen and everything visible is drawn into the preview canvas.
+     display:none would suspend the stream in some browsers. -->
+<video id="cam" playsinline muted aria-hidden="true"></video>
+
+<main>
+
+  <!-- One preview for the whole app: big while you wait, small while you race. -->
+  <div id="cam-box" hidden>
+    <canvas id="preview" width="420" height="420"></canvas>
+    <span id="cam-tag" class="cam-tag" data-i18n="cam.looking">looking for you…</span>
+  </div>
+
+  <section id="view-load" class="view">
+    <h1 id="brand">Push-ups<span class="dot">.</span></h1>
+    <div class="pulse"></div>
+    <p id="load-status" class="status" data-i18n="cam.starting">Starting camera…</p>
+    <p class="hint" data-i18n="cam.hint">Stand side-on to the camera. The video never leaves this browser — only your rep count is sent.</p>
+  </section>
+
+  <section id="view-mode" class="view" hidden>
+    <h2 data-i18n="modes.pickTitle">Pick a mode</h2>
+    <div class="exercise" id="exercise-pick" role="group" aria-label="Exercise">
+      <button class="ex" data-exercise="pushup" data-i18n="exercises.pushup" aria-pressed="true">Push-ups</button>
+      <button class="ex" data-exercise="squat" data-i18n="exercises.squat" aria-pressed="false">Squats</button>
+    </div>
+    <p id="exercise-hint" class="hint"></p>
+    <div class="modes">
+      <button class="mode" data-mode="solo">
+        <b data-i18n="modes.soloTitle">Solo</b>
+        <span data-i18n="modes.soloDesc">Just you. Count reps, track your pace, no waiting.</span>
+      </button>
+      <button class="mode" data-mode="1v1">
+        <b data-i18n="modes.duo1v1Title">Duo — 1v1</b>
+        <span data-i18n="modes.duo1v1Desc">Head to head. First to the target wins.</span>
+      </button>
+      <button class="mode" data-mode="2v2">
+        <b data-i18n="modes.duo2v2Title">Duo — 2v2</b>
+        <span data-i18n="modes.duo2v2Desc">Two against two. Your team's reps are added together.</span>
+      </button>
+    </div>
+    <label class="field naming">
+      <span data-i18n="modes.playingAs">Playing as</span>
+      <input id="name" maxlength="16" placeholder="Player" data-i18n-placeholder="modes.namePlaceholder" autocomplete="off">
+    </label>
+    <div id="lang-switch" class="lang-bar" role="group" aria-label="Language">
+      <button type="button" class="lang-btn" data-lang-picker="en">EN</button>
+      <button type="button" class="lang-btn" data-lang-picker="pl">PL</button>
+    </div>
+  </section>
+
+  <section id="view-queue" class="view" hidden>
+    <p class="eyebrow" data-i18n="queue.eyebrow">Matchmaking</p>
+    <div class="pulse"></div>
+    <h2 id="queue-title" data-i18n="queue.findingOpponent">Finding an opponent…</h2>
+    <p id="queue-info" class="status"></p>
+    <button id="btn-leave-queue" class="ghost small" data-i18n="queue.backToModes">Back to modes</button>
+  </section>
+
+  <section id="view-countdown" class="view" hidden>
+    <p class="eyebrow" data-i18n="countdown.eyebrow">Get ready</p>
+    <p class="vs"><span id="cd-me"></span> <span data-i18n="countdown.vs">vs</span> <span id="cd-op"></span></p>
+    <div id="countdown" class="countdown">3</div>
+    <p class="status" data-i18n="countdown.status">Get into position</p>
+  </section>
+
+  <section id="view-race" class="view" hidden>
+    <header class="race-head">
+      <span id="race-target"></span>
+      <span class="head-right">
+        <span id="race-signal" class="signal"></span>
+        <button class="sound-toggle" type="button" aria-pressed="true" aria-label="Sound on">&#128266;</button>
+      </span>
+    </header>
+
+    <div class="lanes">
+      <div class="lane me">
+        <div class="lane-top">
+          <span class="lane-name" id="me-name" data-i18n="race.you">You</span>
+          <span class="lane-count" id="me-count">0</span>
+        </div>
+        <div class="bar"><div class="fill" id="me-fill"></div></div>
+        <div class="roster" id="me-roster"></div>
+      </div>
+
+      <div class="lane op">
+        <div class="lane-top">
+          <span class="lane-name" id="op-name" data-i18n="race.opponent">Opponent</span>
+          <span class="lane-count" id="op-count">0</span>
+        </div>
+        <div class="bar"><div class="fill op" id="op-fill"></div></div>
+        <div class="roster" id="op-roster"></div>
+      </div>
+    </div>
+
+    <div class="depth-wrap">
+      <span class="depth-label" data-i18n="race.depth">depth</span>
+      <div class="depth"><div class="depth-fill" id="depth-fill"></div></div>
+      <span class="depth-state" id="depth-state">—</span>
+    </div>
+
+    <button id="btn-quit" class="ghost small" data-i18n="race.giveUp">Give up</button>
+  </section>
+
+  <section id="view-solo" class="view" hidden>
+    <header class="race-head">
+      <span id="solo-title" data-i18n="solo.title">Solo</span>
+      <span class="head-right">
+        <span id="solo-signal" class="signal"></span>
+        <button class="sound-toggle" type="button" aria-pressed="true" aria-label="Sound on">&#128266;</button>
+      </span>
+    </header>
+    <div class="solo-count" id="solo-count">0</div>
+    <div id="idle" class="idle" hidden role="status" aria-live="assertive">
+      <span class="idle-label" data-i18n="solo.noReps">No reps · stopping in</span>
+      <b id="idle-n" class="idle-n">5</b>
+      <span class="idle-hint" data-i18n="solo.idleHint">Do a rep to keep going</span>
+    </div>
+    <div class="solo-stats">
+      <div><b id="solo-time">0:00</b><span data-i18n="solo.time">time</span></div>
+      <div><b id="solo-pace">—</b><span data-i18n="solo.pace">reps / min</span></div>
+      <div><b id="solo-best">—</b><span data-i18n="solo.bestSet">best set</span></div>
+    </div>
+    <div class="depth-wrap">
+      <span class="depth-label" data-i18n="solo.depth">depth</span>
+      <div class="depth"><div class="depth-fill" id="solo-depth"></div></div>
+      <span class="depth-state" id="solo-state">—</span>
+    </div>
+    <div class="btns">
+      <button id="btn-solo-finish" class="primary" data-i18n="solo.finish">Finish</button>
+      <button id="btn-solo-reset" class="ghost" data-i18n="solo.reset">Reset</button>
+      <button id="btn-solo-back" class="ghost" data-i18n="solo.backToModes">Back to modes</button>
+    </div>
+  </section>
+
+  <section id="view-solodone" class="view" hidden>
+    <span id="sd-title" class="sd-eyebrow">Solo</span>
+    <p id="sd-stopped" class="sd-caption" hidden data-i18n="soloDone.stoppedAuto">Stopped automatically - no reps for a while.</p>
+    <div class="solo-count" id="sd-reps">0</div>
+    <p class="sd-caption" data-i18n="soloDone.repsThisSession">reps this session</p>
+    <p id="sd-pb-flag" class="sd-flag" hidden data-i18n="soloDone.newBestSet">New best set!</p>
+    <div class="solo-stats">
+      <div><b id="sd-best">—</b><span data-i18n="soloDone.bestSet">best set</span></div>
+      <div><b id="sd-time">0:00</b><span data-i18n="soloDone.time">time</span></div>
+      <div><b id="sd-pace">—</b><span data-i18n="soloDone.pace">reps / min</span></div>
+    </div>
+    <div class="sd-records">
+      <span class="sd-eyebrow" data-i18n="soloDone.yourRecords">Your records</span>
+      <div class="solo-stats">
+        <div><b id="sd-life">—</b><span data-i18n="soloDone.lifetimeReps">lifetime reps</span></div>
+        <div><b id="sd-life-best">—</b><span data-i18n="soloDone.bestSetEver">best set ever</span></div>
+        <div><b id="sd-sessions">—</b><span data-i18n="soloDone.sessions">sessions</span></div>
+      </div>
+      <p id="sd-saved" class="sd-caption"></p>
+    </div>
+    <div class="btns">
+      <button id="btn-solo-again" class="primary" data-i18n="soloDone.goAgain">Go again</button>
+      <button id="btn-solo-done-back" class="ghost" data-i18n="soloDone.backToModes">Back to modes</button>
+    </div>
+  </section>
+
+  <section id="view-result" class="view" hidden>
+    <p class="eyebrow" data-i18n="result.eyebrow">Match over</p>
+    <div id="result-badge" class="badge">—</div>
+    <p id="result-score" class="score"></p>
+    <p id="result-reason" class="status"></p>
+    <div class="btns">
+      <button id="btn-again" class="primary" data-i18n="result.playAgain">Play again</button>
+      <button id="btn-modes" class="ghost" data-i18n="result.changeMode">Change mode</button>
+    </div>
+  </section>
+
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1018341361250",
+    "project_id": "crw-plus",
+    "storage_bucket": "crw-plus.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018341361250:android:72d9839c7abd846925f33b",
+        "android_client_info": {
+          "package_name": "app.crwplus.fitness"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1018341361250-db4jirrqavlfm5et5hajstht3efkpnrc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.crwplus.fitness",
+            "certificate_hash": "3482a4d11e3e163a98f4a39e3ea8d2168430c683"
+          }
+        },
+        {
+          "client_id": "1018341361250-rs63ambf9mb96knvdav1hqssp2bt71ni.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWrvr7vcPHOb1khFu-fOehfuRQL54q89I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1018341361250-rs63ambf9mb96knvdav1hqssp2bt71ni.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

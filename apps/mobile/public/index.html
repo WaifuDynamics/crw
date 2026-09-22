@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+    <title>CRW+ — Get out. Get going.</title>
+    <meta name="description" content="Find your people, track your runs and go rep for rep in live push-up and squat matches." />
+
+    <!-- Installable app (PWA) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#08090B" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="CRW+" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="CRW+" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+
+    <!-- What a chat app, a search engine or a social post shows when this link is sent.
+         Without these the link arrives bare: no picture, no description, just a URL. -->
+    <link rel="canonical" href="https://crw-plus.online/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CRW+" />
+    <meta property="og:url" content="https://crw-plus.online/" />
+    <meta property="og:title" content="CRW+ - Get out. Get going." />
+    <meta property="og:description" content="Join a crew, meet up at real-world sessions near you, and track every workout with friends." />
+    <meta property="og:image" content="https://crw-plus.online/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CRW+ - crews, events and workout tracking" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CRW+ - Get out. Get going." />
+    <meta name="twitter:description" content="Join a crew, meet up at real-world sessions near you, and track every workout with friends." />
+    <meta name="twitter:image" content="https://crw-plus.online/og.png" />
+
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+        background-color: #08090B;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+    <script>
+      // Offline support and install. Skipped on localhost so the dev server never serves
+      // a cached bundle; add ?sw=1 to try it locally.
+      if (
+        'serviceWorker' in navigator &&
+        (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || /[?&]sw=1/.test(location.search))
+      ) {
+        addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function (e) {
+            console.warn('CRW+ offline support unavailable', e);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

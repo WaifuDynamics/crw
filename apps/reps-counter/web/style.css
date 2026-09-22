@@ -1,0 +1,498 @@
+:root {
+  --bg: #0e0f12;
+  --panel: #17191f;
+  --line: #262a33;
+  --ink: #f2f4f8;
+  --muted: #878e9c;
+  --me: #46d67e;
+  --op: #f2a33c;
+  --bad: #ef5a5a;
+  /* Text drawn on top of the accent colour, and the two type families. All four
+     can be replaced through URL parameters so a host app can match its own look
+     (see THEME_VARS in app.js). */
+  --on-me: #07230f;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-body);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top, 0) 20px env(safe-area-inset-bottom, 0);
+  background: radial-gradient(120% 80% at 50% 0%, #1a1d24 0%, var(--bg) 60%);
+  color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+  display: grid;
+  place-items: center;
+}
+
+#cam { position: fixed; left: -9999px; top: 0; width: 320px; height: 240px; }
+
+main { width: 100%; max-width: 560px; padding: 32px 0; }
+
+.view { display: grid; gap: 18px; justify-items: stretch; text-align: center; }
+[hidden] { display: none !important; }
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(38px, 11vw, 58px);
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+h1 .dot { color: var(--me); }
+h2 { margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+
+.lede { margin: 0; color: var(--muted); }
+.status { margin: 0; color: var(--muted); font-size: 14px; min-height: 20px; }
+.status.err { color: var(--bad); }
+.hint { margin: 0; color: #5f6675; font-size: 12.5px; line-height: 1.6; }
+
+.field { display: grid; gap: 7px; text-align: left; }
+.field span { color: var(--muted); font-size: 13px; }
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 16px;
+}
+input:focus { outline: 2px solid var(--me); outline-offset: 1px; }
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+.primary { background: var(--me); color: var(--on-me); }
+.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.ghost.small { padding: 10px 16px; font-size: 14px; font-weight: 500; justify-self: center; }
+
+/* kolejka */
+.pulse {
+  width: 54px; height: 54px; justify-self: center; border-radius: 50%;
+  border: 3px solid var(--line); border-top-color: var(--me);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* odliczanie */
+.vs { margin: 0; color: var(--muted); font-size: 17px; }
+.vs span { color: var(--ink); font-weight: 700; }
+.countdown {
+  font-family: var(--font-display);
+  font-size: clamp(90px, 30vw, 150px);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.countdown.go { color: var(--me); font-size: clamp(56px, 16vw, 86px); }
+
+/* wyscig */
+.race-head {
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--muted); font-size: 13px;
+}
+.signal::before {
+  content: "";
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--me); margin-right: 7px; vertical-align: 1px;
+}
+.signal.lost { color: var(--bad); }
+.signal.lost::before { background: var(--bad); }
+
+.lanes { display: grid; gap: 22px; }
+.lane { display: grid; gap: 9px; }
+.lane-top { display: flex; align-items: baseline; justify-content: space-between; }
+.lane-name { color: var(--muted); font-size: 14px; text-align: left; }
+.lane-count {
+  font-family: var(--font-display);
+  font-size: clamp(46px, 14vw, 66px); font-weight: 800; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.lane.me .lane-count { color: var(--me); }
+.lane.op .lane-count { color: var(--op); }
+.lane.me .lane-count.bump { animation: bump 0.28s ease-out; }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+.bar { height: 16px; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
+.fill { height: 100%; width: 0; border-radius: 99px; background: var(--me); transition: width 0.25s ease-out; }
+.fill.op { background: var(--op); }
+
+.depth-wrap { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.depth-label, .depth-state { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.depth-state { min-width: 44px; text-align: right; }
+.depth { flex: 1; height: 7px; border-radius: 99px; background: var(--panel); border: 1px solid var(--line); overflow: hidden; }
+.depth-fill { height: 100%; width: 0; background: #4b5463; transition: width 0.08s linear; }
+.depth-fill.deep { background: var(--me); }
+
+/* wynik */
+.badge { font-family: var(--font-display); font-size: clamp(34px, 10vw, 46px); font-weight: 800; letter-spacing: -0.02em; }
+.badge.win { color: var(--me); }
+.badge.lose { color: var(--bad); }
+.score { margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* nazwa w kolejce jest drugorzedna - ma nie odciagac uwagi od czekania */
+.naming{max-width:260px;justify-self:center;text-align:center}
+.naming span{text-align:center}
+.naming input{text-align:center;padding:10px 12px;font-size:15px}
+
+/* --- podglad kamery --- */
+#cam-box {
+  position: relative;
+  width: min(62vw, 230px);
+  aspect-ratio: 1;
+  margin: 0 auto 20px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #0a0c0f;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  transition: width .25s ease;
+}
+#cam-box.racing { width: min(42vw, 150px); margin-bottom: 14px; }
+#cam-box.hit { border-color: var(--me); box-shadow: 0 0 0 2px var(--me), 0 10px 30px rgba(0,0,0,.45); }
+#preview { width: 100%; height: 100%; display: block; }
+.cam-tag {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 14px 10px 7px;
+  font-size: 11px; letter-spacing: .02em; color: #cfd5e0; text-align: center;
+  background: linear-gradient(to top, rgba(8,10,13,.85), transparent);
+  pointer-events: none;
+}
+.cam-tag.ok { color: var(--me); }
+.cam-tag.lost { color: var(--bad); }
+
+/* --- mode picker --- */
+.modes { display: grid; gap: 10px; }
+.mode {
+  display: grid; gap: 3px; text-align: left;
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+  padding: 15px 17px; border-radius: 14px; font-weight: 500;
+  transition: border-color .15s, transform .08s;
+}
+.mode:hover { border-color: var(--me); }
+.mode:active { transform: scale(.99); }
+.mode b { font-size: 16px; font-weight: 700; }
+.mode span { color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+
+/* --- team roster under each bar (2v2) --- */
+.roster { display: flex; gap: 14px; flex-wrap: wrap; min-height: 0; }
+.roster span {
+  color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.roster span.you { color: var(--ink); font-weight: 600; }
+.lane.op .roster span.you { color: var(--ink); }
+
+/* --- solo --- */
+.solo-count {
+  font-family: var(--font-display);
+  font-size: clamp(76px, 26vw, 128px); font-weight: 800; line-height: 1;
+  color: var(--me); font-variant-numeric: tabular-nums;
+}
+.solo-count.bump { animation: bump 0.28s ease-out; }
+.solo-stats { display: flex; justify-content: center; gap: 28px; }
+.solo-stats div { display: grid; gap: 2px; }
+.solo-stats b { font-family: var(--font-display); font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.solo-stats span { color: var(--muted); font-size: 11.5px; }
+/* solo summary */
+.sd-eyebrow { color: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.sd-caption { margin: 0; color: var(--muted); font-size: 13px; }
+.sd-flag { margin: 0; color: var(--op); font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.sd-records { display: grid; gap: 10px; padding: 16px 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+
+.roster span.gone { opacity: .5; text-decoration: line-through; }
+
+/* --- embedded in someone else's page (embed.js) --- */
+/* The host sizes the iframe from main's height, so the page must not force its
+   own full-viewport height - that would feed back into the measurement. */
+html.embed body { min-height: 0; display: block; padding: 0 16px; background: #0e0f12; }
+html.embed main { margin: 0 auto; padding: 22px 0; }
+html.embed h1 { font-size: clamp(30px, 9vw, 44px); }
+
+/* --- exercise switch --- */
+.exercise {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+}
+.ex {
+  background: transparent; color: var(--muted); padding: 10px 12px;
+  border-radius: 9px; font-size: 15px; font-weight: 600;
+}
+.ex[aria-pressed="true"] { background: var(--me); color: var(--on-me); }
+#exercise-hint { margin-top: -8px; }
+
+/* --- shared bits (hidden in the classic look) --- */
+.eyebrow { display: none; }
+.head-right { display: inline-flex; align-items: center; gap: 10px; }
+.sound-toggle {
+  padding: 4px 8px; border-radius: 10px; font-size: 15px; line-height: 1;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+}
+.idle {
+  display: grid; gap: 2px; justify-items: center; padding: 14px 16px;
+  border-radius: 16px; background: #2a2112; border: 1px solid #5c4520; color: #ffe3b8;
+}
+.idle-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.idle-n { font-family: var(--font-display); font-size: 64px; line-height: 1; font-weight: 800; color: #ffd18b; }
+.idle-n.bump { animation: bump 0.28s ease-out; }
+.idle-hint { font-size: 12px; color: #d9c29a; }
+
+/* ===================================================================== */
+/* CRW+ skin (skin=crw): matches the CRW+ app - condensed italic display  */
+/* type, uppercase eyebrows, 20px cards, stat tiles and pill switches.    */
+/* ===================================================================== */
+html.skin-crw { --panel2: #22252A; --bad: #FF5A5F; }
+html.skin-crw body {
+  background: var(--bg);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+html.skin-crw.embed body { background: var(--bg); padding: 0 14px; }
+html.skin-crw main { padding: 16px 0 22px; max-width: 520px; }
+html.skin-crw .view { gap: 14px; }
+
+html.skin-crw .eyebrow {
+  display: block; margin: 0; color: var(--me);
+  font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+}
+html.skin-crw h1,
+html.skin-crw h2 {
+  font-family: var(--font-display); font-style: italic; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0; line-height: .95;
+}
+html.skin-crw h2 { font-size: clamp(30px, 9vw, 40px); }
+html.skin-crw .status { font-size: 13px; }
+html.skin-crw .hint { color: var(--muted); font-size: 12px; }
+
+/* buttons */
+html.skin-crw button { border-radius: 14px; font-size: 15px; padding: 15px 18px; }
+html.skin-crw .primary { background: var(--me); color: var(--on-me); }
+html.skin-crw .ghost { background: var(--panel2); color: var(--ink); border: 1px solid var(--line); }
+html.skin-crw .ghost.small { background: transparent; color: var(--muted); font-weight: 600; font-size: 13px; }
+html.skin-crw .btns { display: grid; gap: 10px; }
+html.skin-crw .sound-toggle { background: var(--panel2); border-color: var(--line); padding: 6px 9px; }
+
+/* camera preview */
+html.skin-crw #cam-box { border-radius: 20px; border-color: var(--line); box-shadow: none; width: min(64vw, 240px); }
+html.skin-crw #cam-box.racing { width: min(40vw, 150px); }
+html.skin-crw #cam-box.hit { border-color: var(--me); box-shadow: 0 0 0 2px var(--me); }
+html.skin-crw .cam-tag { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+/* mode picker */
+html.skin-crw .exercise {
+  display: flex; justify-content: center; gap: 8px; padding: 0; background: none; border: 0;
+}
+html.skin-crw .ex {
+  flex: 0 0 auto; padding: 11px 20px; border-radius: 999px; font-size: 12px; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase;
+  background: var(--panel); color: var(--muted); border: 1px solid var(--line);
+}
+html.skin-crw .ex[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+html.skin-crw .mode {
+  gap: 6px; padding: 18px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line);
+}
+html.skin-crw .mode b {
+  font-family: var(--font-display); font-style: italic; font-weight: 800; font-size: 30px;
+  line-height: 1; text-transform: uppercase;
+}
+html.skin-crw .mode span { font-size: 12.5px; }
+html.skin-crw .mode:hover { border-color: var(--me); }
+
+/* queue + countdown */
+html.skin-crw .pulse { width: 46px; height: 46px; border-width: 3px; }
+html.skin-crw .vs { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+html.skin-crw .countdown {
+  font-style: italic; color: var(--me); font-size: clamp(110px, 34vw, 170px);
+}
+html.skin-crw .countdown.go { color: var(--op); }
+
+/* race */
+html.skin-crw .race-head {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+}
+html.skin-crw .signal { font-size: 11px; }
+html.skin-crw .lanes { gap: 10px; }
+html.skin-crw .lane {
+  gap: 10px; padding: 16px 16px 14px; border-radius: 20px;
+  background: var(--panel); border: 1px solid var(--line);
+}
+html.skin-crw .lane.me { border-color: color-mix(in srgb, var(--me) 45%, var(--line)); }
+html.skin-crw .lane-name { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+html.skin-crw .lane-count { font-style: italic; font-size: clamp(52px, 16vw, 72px); }
+html.skin-crw .bar { height: 10px; background: var(--panel2); border: 0; }
+html.skin-crw .depth { height: 6px; background: var(--panel2); border: 0; }
+html.skin-crw .depth-label,
+html.skin-crw .depth-state { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+/* solo */
+html.skin-crw .solo-count { font-style: italic; font-size: clamp(96px, 32vw, 150px); }
+html.skin-crw .solo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+html.skin-crw .solo-stats div {
+  gap: 2px; padding: 12px 10px; border-radius: 14px; background: var(--panel2); text-align: left;
+}
+html.skin-crw .solo-stats b { font-size: 24px; line-height: 1.1; order: 2; }
+html.skin-crw .solo-stats span {
+  order: 1; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+}
+html.skin-crw .sd-eyebrow { color: var(--me); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+html.skin-crw .sd-records { padding: 16px; border-radius: 20px; background: var(--panel); text-align: left; }
+html.skin-crw .sd-records .solo-stats div { background: var(--panel2); }
+html.skin-crw .sd-flag { font-style: italic; font-size: 26px; }
+html.skin-crw .idle { border-radius: 20px; }
+
+/* result */
+html.skin-crw .badge {
+  font-style: italic; text-transform: uppercase; font-size: clamp(56px, 18vw, 84px); line-height: .95;
+}
+html.skin-crw .badge.win { color: var(--me); }
+html.skin-crw .score { font-style: italic; font-size: 40px; }
+
+/* name field */
+html.skin-crw input { border-radius: 14px; background: var(--panel); }
+html.skin-crw .naming span { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+/* ===================================================================== */
+/* CRW+ stage: while you queue, count down and move, the camera fills    */
+/* the screen and everything else floats on it. Text over the video is   */
+/* always light, whatever the app theme (!important beats the inline      */
+/* theme colours).                                                        */
+/* ===================================================================== */
+html.skin-crw.stage {
+  --ink: #F7F8FA !important;
+  --muted: #C9CED8 !important;
+  --line: rgba(255, 255, 255, .16) !important;
+  --panel: rgba(10, 12, 16, .58) !important;
+  --panel2: rgba(255, 255, 255, .14) !important;
+  --glass-blur: blur(16px) saturate(140%);
+}
+html.skin-crw.stage body { background: #000; }
+html.skin-crw.stage #cam-box {
+  position: fixed; inset: 0; z-index: 0;
+  width: auto; height: auto; aspect-ratio: auto; margin: 0;
+  border: 0; border-radius: 0; box-shadow: none; background: #000;
+  transition: box-shadow .2s ease;
+}
+html.skin-crw.stage #cam-box.racing { width: auto; margin: 0; }
+/* A rep lights the edges instead of the old box border. */
+html.skin-crw.stage #cam-box.hit { box-shadow: inset 0 0 0 4px var(--me), inset 0 0 60px color-mix(in srgb, var(--me) 45%, transparent); }
+/* Shade at the top and bottom so the numbers read on any background. The shade
+   lives on the camera box, so it is always between the video and the content. */
+html.skin-crw.stage #cam-box::before,
+html.skin-crw.stage #cam-box::after {
+  content: ""; position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none;
+}
+html.skin-crw.stage #cam-box::before { top: 0; height: 38%; background: linear-gradient(to bottom, rgba(0,0,0,.72), rgba(0,0,0,0)); }
+html.skin-crw.stage #cam-box::after { bottom: 0; height: 48%; background: linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,0)); }
+html.skin-crw.stage .cam-tag { z-index: 2; }
+/* Solo and race show the same status in their top bar. */
+html.skin-crw.stage[data-view="solo"] .cam-tag,
+html.skin-crw.stage[data-view="race"] .cam-tag { display: none; }
+html.skin-crw.stage main {
+  min-height: 100dvh; box-sizing: border-box;
+  display: flex; flex-direction: column;
+  padding: max(14px, env(safe-area-inset-top)) 0 max(18px, env(safe-area-inset-bottom));
+}
+/* Positioned, so the content paints above the fixed camera box. */
+html.skin-crw.stage .view:not([hidden]) {
+  position: relative; z-index: 1;
+  flex: 1; display: flex; flex-direction: column; gap: 10px;
+}
+
+/* "Looking for you" becomes a pill under the top bar. */
+html.skin-crw.stage .cam-tag {
+  top: auto; bottom: max(96px, calc(env(safe-area-inset-bottom) + 84px)); left: 50%; right: auto;
+  transform: translateX(-50%); padding: 7px 12px; border-radius: 999px; white-space: nowrap;
+  background: rgba(10, 12, 16, .6); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+}
+
+/* Glass surfaces */
+html.skin-crw.stage .race-head,
+html.skin-crw.stage .lane,
+html.skin-crw.stage .solo-stats div,
+html.skin-crw.stage .depth-wrap,
+html.skin-crw.stage .idle,
+html.skin-crw.stage .ghost {
+  background: var(--panel);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+}
+html.skin-crw.stage .race-head { padding: 8px 8px 8px 14px; border-radius: 999px; align-items: center; }
+html.skin-crw.stage .depth-wrap { padding: 10px 14px; border-radius: 16px; }
+html.skin-crw.stage .ghost.small { background: transparent; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--muted); }
+html.skin-crw.stage .solo-stats div { background: var(--panel); }
+html.skin-crw.stage .sound-toggle { background: var(--panel2); }
+
+/* Queue and countdown: centred over the video. */
+html.skin-crw.stage #view-queue:not([hidden]),
+html.skin-crw.stage #view-countdown:not([hidden]) { justify-content: center; text-align: center; }
+html.skin-crw.stage .countdown {
+  font-size: clamp(150px, 48vw, 240px); line-height: .9;
+  text-shadow: 0 6px 40px rgba(0, 0, 0, .55);
+}
+html.skin-crw.stage #view-queue > :first-child,
+html.skin-crw.stage #view-countdown > :first-child { margin-top: auto; }
+html.skin-crw.stage #view-countdown > :last-child { margin-bottom: auto; }
+html.skin-crw.stage #view-queue .pulse { align-self: center; }
+html.skin-crw.stage #btn-leave-queue { margin-top: auto; align-self: center; }
+
+/* Solo: the count sits big at the top, stats and buttons at the bottom. */
+html.skin-crw.stage .solo-count {
+  font-size: clamp(120px, 40vw, 190px); line-height: .9; text-align: left; padding-left: 4px;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, .5), 0 6px 34px rgba(0, 0, 0, .7);
+}
+html.skin-crw.stage #view-solo .idle { margin-top: 4px; }
+html.skin-crw.stage #view-solo .solo-stats { margin-top: auto; }
+html.skin-crw.stage #view-solo .btns { grid-template-columns: 1.4fr 1fr 1fr; }
+html.skin-crw.stage #view-solo .btns button { padding: 14px 10px; font-size: 14px; }
+
+/* Race: the two counters side by side at the top, depth and quit at the bottom. */
+html.skin-crw.stage .lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html.skin-crw.stage .lane { padding: 12px 12px 10px; gap: 6px; }
+html.skin-crw.stage .lane-count { font-size: clamp(56px, 17vw, 84px); text-shadow: 0 4px 20px rgba(0, 0, 0, .45); }
+html.skin-crw.stage .lane.me { border-color: color-mix(in srgb, var(--me) 70%, transparent); }
+html.skin-crw.stage #view-race .depth-wrap { margin-top: auto; }
+html.skin-crw.stage h2,
+html.skin-crw.stage .status,
+html.skin-crw.stage .eyebrow,
+html.skin-crw.stage .vs { text-shadow: 0 1px 2px rgba(0, 0, 0, .6), 0 4px 18px rgba(0, 0, 0, .55); }
+
+/* Language selector */
+.lang-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+.lang-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.lang-btn:hover {
+  border-color: var(--muted);
+  color: var(--ink);
+}
+.lang-btn.active {
+  background: var(--me);
+  color: var(--on-me);
+  border-color: var(--me);
+}

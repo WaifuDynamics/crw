@@ -1,0 +1,133 @@
+# Production stack for https://sport.konekocode.pl, run on one machine behind a
+# Cloudflare tunnel. Every port binds to 127.0.0.1 - the tunnel is the only way in.
+#
+#   docker compose -f deploy/compose.production.yaml --env-file deploy/.env up -d --build
+#
+# Separate from ../compose.yaml (development Postgres/Redis) so both can coexist.
+name: crw-production
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: crw
+      POSTGRES_USER: crw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in deploy/.env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes: ["postgres:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crw -d crw"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redis:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # S3-compatible media storage. The Docker Hub image is gone, quay.io still ships it.
+  minio:
+    image: quay.io/minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in deploy/.env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in deploy/.env}
+      # Presigned URLs are signed for the public host the browser uploads to.
+      MINIO_SERVER_URL: https://media.crw-plus.com
+      MINIO_BROWSER_REDIRECT_URL: http://127.0.0.1:9101
+      MINIO_API_CORS_ALLOW_ORIGIN: https://crw-plus.online
+    ports:
+      - "127.0.0.1:9100:9000"
+      - "127.0.0.1:9101:9001"
+    volumes: ["minio:/data"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # One-off: create the bucket and make its objects publicly readable (uploads stay signed).
+  minio-init:
+    image: quay.io/minio/mc:latest
+    depends_on:
+      minio: {condition: service_healthy}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        mc alias set crw http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" &&
+        mc mb --ignore-existing crw/crw-media &&
+        mc anonymous set download crw/crw-media
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    restart: "no"
+
+  # One-off: database migrations, then the API starts.
+  migrate:
+    build: {context: .., dockerfile: Dockerfile}
+    image: crw-api:production
+    env_file: ../apps/api/.env.production
+    command: ["node", "dist/migrate.js"]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: "no"
+
+  api:
+    image: crw-api:production
+    env_file: ../apps/api/.env.production
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+      minio-init: {condition: service_completed_successfully}
+    ports: ["127.0.0.1:4100:4000"]
+    restart: unless-stopped
+
+  # The exported web app, served as a single-page app.
+  web:
+    image: nginx:1.27-alpine
+    volumes:
+      - ../apps/mobile/dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports: ["127.0.0.1:8090:80"]
+    restart: unless-stopped
+
+  # The marketing landing at crw-plus.com (apex + www).
+  landing:
+    image: nginx:1.27-alpine
+    volumes:
+      - ../apps/landing:/usr/share/nginx/html:ro
+    ports: ["127.0.0.1:8092:80"]
+    restart: unless-stopped
+
+  #301s the other CRW+ domains (crw-plus.pl, ...) to the canonical crw-plus.com.
+  redirect:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./redirect.conf:/etc/nginx/conf.d/default.conf:ro
+    ports: ["127.0.0.1:8093:80"]
+    restart: unless-stopped
+
+  # The pairing engine behind 1v1/2v2 rep races. Internal only: the API passes
+  # /reps/match/* through to it, and the counter itself ships inside the app.
+  reps:
+    build: {context: ../apps/reps-counter}
+    image: crw-reps:production
+    volumes:
+      - reps:/app/data
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  redis:
+  minio:
+  reps:

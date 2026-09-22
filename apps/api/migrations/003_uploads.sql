@@ -1,0 +1,1 @@
+CREATE TABLE media_uploads (id uuid PRIMARY KEY,user_id uuid NOT NULL REFERENCES users,storage_key text NOT NULL UNIQUE,content_type text NOT NULL,expected_size int NOT NULL CHECK(expected_size BETWEEN 1 AND 8388608),token_hash text,expires_at timestamptz NOT NULL,completed_at timestamptz,created_at timestamptz NOT NULL DEFAULT now());

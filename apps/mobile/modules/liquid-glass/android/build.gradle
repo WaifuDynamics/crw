@@ -1,0 +1,22 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'app.crwplus.liquidglass'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.liquidglass"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+}
+
+dependencies {
+  // AndroidLiquidGlassView: refraction and dispersion through an AGSL shader (Android 13+).
+  // 1.0.4 and up are built against API 37 and refuse to link against our compileSdk 36,
+  // which is what Expo SDK 57 and AGP 8.12 use. 1.0.3 has the same API and no such demand.
+  implementation 'com.qmdeve.liquidglass:core:1.0.3'
+}

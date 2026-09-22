@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Health & Fitness Data Policy · CRW+</title>
+  <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
+  
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #08090B;
+      --card-bg: #12141A;
+      --card-border: #232733;
+      --ink: #F7F8FA;
+      --muted: #969AA3;
+      --blue: #168BFF;
+      --blue-hover: #0077F0;
+      --line: #2B2E34;
+      --danger: #EF4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --warning: #F59E0B;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --success: #10B981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #F8F9FA;
+        --card-bg: #FFFFFF;
+        --card-border: #E5E7EB;
+        --ink: #111827;
+        --muted: #4B5563;
+        --line: #E5E7EB;
+        --danger-bg: #FEE2E2;
+        --warning-bg: #FEF3C7;
+        --success-bg: #D1FAE5;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 36px 20px 80px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--blue);
+    }
+    h1 {
+      font-size: 32px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+    h2 {
+      font-size: 21px;
+      margin: 36px 0 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 8px;
+    }
+    p, li {
+      margin: 0 0 12px;
+      color: var(--ink);
+    }
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul, ol {
+      padding-left: 22px;
+      margin: 8px 0 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .callout {
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+    .callout-important {
+      background: var(--danger-bg);
+      border-left: 4px solid var(--danger);
+    }
+    .callout-warning {
+      background: var(--warning-bg);
+      border-left: 4px solid var(--warning);
+    }
+    .callout-info {
+      background: var(--card-bg);
+      border-left: 4px solid var(--blue);
+      border: 1px solid var(--card-border);
+      border-left-width: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+    }
+    th {
+      background: var(--card-bg);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--blue-hover);
+      text-decoration: none;
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      text-decoration: none;
+    }
+    footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .footer-col h4 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+    }
+    .footer-col a {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .footer-col a:hover {
+      color: var(--blue);
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="/" class="brand">
+        <img src="/icons/icon-192.png" alt="CRW+ Logo" onerror="this.style.display='none'">
+        <span>CRW+</span>
+      </a>
+      <span class="badge">Apple & Google Health</span>
+    </header>
+
+    <h1>Health & Fitness Data Policy</h1>
+    <div class="updated">Last updated: September 17, 2026 · Effective immediately</div>
+
+    
+<p>This Health &amp; Fitness Data Policy explains how CRW+ interacts with native health ecosystems, specifically <strong>Apple Health (HealthKit)</strong> on iOS and <strong>Android Health Connect</strong> on Android devices. This document reflects strict adherence to Apple and Google developer health data policies.</p>
+
+<div class="callout callout-info">
+  <strong>The Core Promise:</strong><br>
+  CRW+ uses health and sensor data <strong>strictly to calculate your personal athletic metrics</strong>. We <strong>NEVER</strong> sell health data, never transfer it to advertising brokers, and never use it for commercial profiling or marketing.
+</div>
+
+<h2>1. What Health Data We Access</h2>
+<p>When you explicitly grant permission in your operating system, CRW+ can read and write the following fitness data points:</p>
+<ul>
+  <li><strong>Workout Records:</strong> Start and end times, activity category (run, walk, cycle), duration, and distance.</li>
+  <li><strong>Heart Rate:</strong> Real-time heart rate readings captured by paired watches or chest straps during an active workout session.</li>
+  <li><strong>Active Calories Burned:</strong> Metabolic equivalent (MET) energy expenditure estimates.</li>
+  <li><strong>Step Counts:</strong> Daily cumulative walking and running steps.</li>
+  <li><strong>Distance:</strong> Total outdoor and treadmill distance traveled.</li>
+</ul>
+
+<h2>2. What We NEVER Access or Collect</h2>
+<p>CRW+ does <strong>NOT</strong> request, collect, or process sensitive categories of health data, including:</p>
+<ul>
+  <li>❌ Reproductive health, menstrual cycles, or fertility records.</li>
+  <li>❌ Sleep cycle analysis or sleep tracking data.</li>
+  <li>❌ Clinical health records, lab results, medications, or disease diagnoses.</li>
+  <li>❌ Genetic, biometric identity, or DNA data.</li>
+</ul>
+
+<h2>3. Purpose of Health Data Processing</h2>
+<p>Health data is processed solely to provide direct athletic value to you:</p>
+<ul>
+  <li>Displaying heart rate zones (aerobic, anaerobic, peak) during and after runs.</li>
+  <li>Synchronizing workout summaries between CRW+ and your phone's central fitness log.</li>
+  <li>Providing aggregate weekly and monthly mileage and calorie statistics.</li>
+</ul>
+
+<h2>4. 100% Optional &amp; Revocable at Any Time</h2>
+<p>Connecting your health ecosystem is completely optional. CRW+ functions normally without HealthKit or Health Connect. You can revoke health permissions at any moment directly in your phone settings:</p>
+<ul>
+  <li><strong>iOS:</strong> <em>Settings &gt; Privacy &amp; Security &gt; Health &gt; CRW+</em> &gt; Turn off permissions.</li>
+  <li><strong>Android:</strong> <em>Settings &gt; Privacy &gt; Health Connect &gt; App permissions &gt; CRW+</em> &gt; Turn off permissions.</li>
+</ul>
+
+<h2>5. Accuracy Disclaimer</h2>
+<p>Metrics provided by consumer sensors, optical heart rate monitors, and smartphone algorithms are statistical approximations intended for recreational fitness purposes only. They are not clinical diagnostic instruments. Consult a medical doctor before making health decisions based on fitness tracking data.</p>
+
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Legal &amp; Operator</h4>
+          <a href="/terms">Terms of Service</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/legal">Legal / Operator Info</a>
+          <a href="/data-safety">Data Safety Summary</a>
+          <a href="/children-safety">Children's Safety (13+)</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community &amp; Content</h4>
+          <a href="/community-guidelines">Community Guidelines</a>
+          <a href="/moderation">Reporting &amp; Moderation</a>
+          <a href="/event-policy">Clubs &amp; Events Policy</a>
+          <a href="/copyright">Copyright &amp; IP</a>
+        </div>
+        <div class="footer-col">
+          <h4>Health &amp; Safety</h4>
+          <a href="/health-data">Health &amp; Fitness Data</a>
+          <a href="/location-data">Location &amp; GPS Policy</a>
+          <a href="/safety">SOS &amp; Safety Disclaimer</a>
+          <a href="/fitness-disclaimer">Health &amp; Fitness Disclaimer</a>
+        </div>
+        <div class="footer-col">
+          <h4>Account &amp; Help</h4>
+          <a href="/support">Support Center</a>
+          <a href="/delete-account">Account Deletion</a>
+          <a href="/marketing-preferences">Marketing Preferences</a>
+          <a href="/subscriptions">Subscriptions &amp; Billing</a>
+          <a href="/security">Vulnerability Reporting</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 CRW+ · Operated in Poland, European Union. All rights reserved.</div>
+        <div>Contact: <a href="mailto:support@crw-plus.com">support@crw-plus.com</a></div>
+      </div>
+    </footer>
+  </main>
+  
+</body>
+</html>

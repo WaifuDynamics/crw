@@ -1,0 +1,381 @@
+# Builds the CRW+ Android and iOS apps and publishes them as a versioned GitHub Release.
+#
+# Start a release in either of two ways:
+#   - Actions > "Release apps" > Run workflow, choosing patch / minor / major (or an exact
+#     version). The workflow sets apps/mobile/package.json, commits, tags vX.Y.Z and builds.
+#   - Push a tag yourself: git tag v1.2.0 && git push origin v1.2.0
+#
+# Outputs attached to the release:
+#   crw-plus-<version>-android.apk   installable APK (arm64 + armv7)
+#   crw-plus-<version>-android.aab   Play Store bundle (only when the release keystore is set)
+#   crw-plus-<version>-ios.ipa       signed ad-hoc IPA (only when iOS signing secrets are set)
+#   crw-plus-<version>-ios-simulator.zip  otherwise, a simulator build
+#   crw-plus-<version>-ios-unsigned.ipa   and an unsigned iPhone build to sideload (Sideloadly, AltStore)
+#   SHA256SUMS.txt
+#
+# Secrets (Settings > Secrets and variables > Actions). All optional; see docs/RELEASE.md.
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#   IOS_CERTIFICATE_P12_BASE64, IOS_CERTIFICATE_PASSWORD, IOS_PROVISIONING_PROFILE_BASE64,
+#   IOS_TEAM_ID, IOS_EXPORT_METHOD (release-testing | app-store-connect | enterprise; default release-testing)
+name: Release apps
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump'
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      version:
+        description: 'Exact version instead of a bump (e.g. 1.4.0 or 2.0.0-beta.1)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-apps
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 24
+  APP_DIR: apps/mobile
+
+jobs:
+  prepare:
+    name: Version and draft release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Decide the version
+        id: version
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          BUMP: ${{ inputs.bump }}
+          EXACT: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            node scripts/release/version.mjs code "$VERSION" > /dev/null
+          else
+            # Continue from the newest release tag, or from package.json if there is none.
+            LAST_TAG=$(git tag --list 'v*.*.*' --sort=-v:refname | head -n1)
+            if [ -n "$LAST_TAG" ]; then node scripts/release/version.mjs set "${LAST_TAG#v}" > /dev/null; fi
+            VERSION=$(node scripts/release/version.mjs next "${EXACT:-$BUMP}")
+            if git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
+              echo "::error::Tag v$VERSION already exists"; exit 1
+            fi
+            git checkout -- package.json
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          case "$VERSION" in *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;; esac
+          echo "Releasing $VERSION (build number $(node scripts/release/version.mjs code "$VERSION"))" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the version and tag it
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          node "$APP_DIR/scripts/release/version.mjs" set "$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$APP_DIR/package.json"
+          git commit -m "Release v$VERSION" || echo "Version already $VERSION"
+          git tag -a "v$VERSION" -m "CRW+ v$VERSION"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "v$VERSION"
+
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG exists; builds will be added to it."
+          else
+            flags=(--draft --generate-notes --title "CRW+ $TAG" --verify-tag)
+            [ "$PRERELEASE" = "true" ] && flags+=(--prerelease)
+            gh release create "$TAG" "${flags[@]}"
+          fi
+
+  android:
+    name: Android
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      # Before any setup-* step: those install into the tool cache, which must stay.
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/node_modules || true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - run: npm ci
+      - name: App configuration
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          node scripts/release/version.mjs set "$VERSION"
+          node scripts/release/app-env.mjs production >> "$GITHUB_ENV"
+          echo "NODE_ENV=production" >> "$GITHUB_ENV"
+
+      - name: Release keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/crw-release.jks"
+            echo "CRW_KEYSTORE_PATH=$RUNNER_TEMP/crw-release.jks" >> "$GITHUB_ENV"
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 is not set - the APK is signed with the public debug key and no AAB is built."
+          fi
+
+      - name: Generate the native project
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          CI: 1
+          CRW_ANDROID_ABIS: arm64-v8a,armeabi-v7a
+        run: |
+          npx expo prebuild --platform android --clean --no-install
+          node scripts/release/prepare-native.mjs android
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # The APK and the AAB are built one after the other, with the worker count and the
+      # heap pinned: building both at once let dexing spread over enough parallel workers
+      # for the runner to run out of memory and kill the job ("The operation was
+      # canceled" in the middle of mergeExtDexRelease).
+      - name: Build
+        working-directory: ${{ env.APP_DIR }}/android
+        env:
+          CRW_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          CRW_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          CRW_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs=-Xmx4g\ -XX:MaxMetaspaceSize=1g\ -Dfile.encoding=UTF-8
+            -Dorg.gradle.workers.max=2
+            -Dkotlin.compiler.execution.strategy=in-process
+        run: |
+          ./gradlew assembleRelease --no-daemon --console=plain
+          if [ -n "${CRW_KEYSTORE_PATH:-}" ]; then
+            ./gradlew bundleRelease --no-daemon --console=plain
+          fi
+
+      - name: Collect
+        working-directory: ${{ env.APP_DIR }}/android/app/build/outputs
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/out"
+          cp apk/release/app-release.apk "$RUNNER_TEMP/out/crw-plus-$VERSION-android.apk"
+          if [ -f bundle/release/app-release.aab ]; then
+            cp bundle/release/app-release.aab "$RUNNER_TEMP/out/crw-plus-$VERSION-android.aab"
+          fi
+          ls -la "$RUNNER_TEMP/out"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: ${{ runner.temp }}/out/*
+          if-no-files-found: error
+
+  ios:
+    name: iOS
+    needs: prepare
+    # Expo SDK 57 (expo-modules-jsi) only compiles with the Swift in Xcode 27: Xcode 26.x fails
+    # on its C++ interop annotations and Swift 6 concurrency checks. GitHub offers Xcode 27 as
+    # the xcode-27 preview image, where it is the default Xcode. Builds from a beta Xcode can be
+    # installed (simulator, ad-hoc) but App Store Connect rejects them until Xcode 27 is final.
+    runs-on: xcode-27
+    timeout-minutes: 90
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      HAS_SIGNING: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 != '' && secrets.IOS_PROVISIONING_PROFILE_BASE64 != '' && secrets.IOS_TEAM_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+      - run: xcodebuild -version && swift --version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - name: App configuration
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          node scripts/release/version.mjs set "$VERSION"
+          node scripts/release/app-env.mjs production >> "$GITHUB_ENV"
+          echo "NODE_ENV=production" >> "$GITHUB_ENV"
+
+      - name: Signing certificate and profile
+        if: env.HAS_SIGNING == 'true'
+        env:
+          P12_BASE64: ${{ secrets.IOS_CERTIFICATE_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/crw.keychain-db"
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 16)
+          echo "$P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          echo "$PROFILE_BASE64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          security list-keychain -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          PROFILE_PLIST=$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision")
+          UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin <<< "$PROFILE_PLIST")
+          NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< "$PROFILE_PLIST")
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+          echo "IOS_PROFILE_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "IOS_PROFILE_UUID=$UUID" >> "$GITHUB_ENV"
+          echo "KEYCHAIN=$KEYCHAIN" >> "$GITHUB_ENV"
+
+      - name: Generate the native project
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          CI: 1
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          npx expo prebuild --platform ios --clean
+          node scripts/release/prepare-native.mjs ios | tee "$RUNNER_TEMP/prepare.log"
+          SCHEME=$(sed -n 's/.*scheme=\(.*\)$/\1/p' "$RUNNER_TEMP/prepare.log")
+          echo "SCHEME=$SCHEME" >> "$GITHUB_ENV"
+
+      - name: Build signed IPA
+        if: env.HAS_SIGNING == 'true'
+        working-directory: ${{ env.APP_DIR }}/ios
+        env:
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD }}
+        run: |
+          set -euo pipefail
+          xcodebuild -quiet -workspace "$SCHEME.xcworkspace" -scheme "$SCHEME" -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/CRWPlus.xcarchive" archive
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>${EXPORT_METHOD:-release-testing}</string>
+            <key>teamID</key><string>$IOS_TEAM_ID</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key><dict><key>app.crwplus.fitness</key><string>$IOS_PROFILE_UUID</string></dict>
+            <key>compileBitcode</key><false/>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/CRWPlus.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export"
+          mkdir -p "$RUNNER_TEMP/out"
+          cp "$RUNNER_TEMP"/export/*.ipa "$RUNNER_TEMP/out/crw-plus-$VERSION-ios.ipa"
+
+      - name: Build for the simulator (no signing secrets)
+        if: env.HAS_SIGNING != 'true'
+        working-directory: ${{ env.APP_DIR }}/ios
+        run: |
+          set -euo pipefail
+          echo "::warning::iOS signing secrets are not set - building a simulator app instead of an IPA."
+          xcodebuild -workspace "$SCHEME.xcworkspace" -scheme "$SCHEME" -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd" CODE_SIGNING_ALLOWED=NO build
+          APP=$(find "$RUNNER_TEMP/dd/Build/Products/Release-iphonesimulator" -maxdepth 1 -name '*.app' | head -n1)
+          mkdir -p "$RUNNER_TEMP/out"
+          (cd "$(dirname "$APP")" && ditto -c -k --keepParent "$(basename "$APP")" "$RUNNER_TEMP/out/crw-plus-$VERSION-ios-simulator.zip")
+
+      # An unsigned iPhone build for sideloading (Sideloadly, AltStore): the tool signs it
+      # with the tester's own Apple ID when installing.
+      - name: Build unsigned IPA for sideloading (no signing secrets)
+        if: env.HAS_SIGNING != 'true'
+        working-directory: ${{ env.APP_DIR }}/ios
+        run: |
+          set -euo pipefail
+          xcodebuild -workspace "$SCHEME.xcworkspace" -scheme "$SCHEME" -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/dd-device" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+          APP=$(find "$RUNNER_TEMP/dd-device/Build/Products/Release-iphoneos" -maxdepth 1 -name '*.app' | head -n1)
+          rm -rf "$RUNNER_TEMP/ipa" && mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$RUNNER_TEMP/out/crw-plus-$VERSION-ios-unsigned.ipa" Payload)
+          ls -la "$RUNNER_TEMP/out"
+
+      - name: Remove the signing keychain
+        if: always() && env.KEYCHAIN != ''
+        run: security delete-keychain "$KEYCHAIN" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: ${{ runner.temp }}/out/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [prepare, android, ios]
+    # Android is required; a failed iOS build still publishes the Android app.
+    if: always() && needs.prepare.result == 'success' && needs.android.result == 'success'
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ needs.prepare.outputs.tag }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Upload builds and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          IOS_RESULT: ${{ needs.ios.result }}
+        run: |
+          set -euo pipefail
+          cd out
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          gh release upload "$TAG" * --clobber
+          NOTES=$(gh release view "$TAG" --json body --jq .body)
+          {
+            echo "## Downloads"
+            echo
+            for f in *; do [ "$f" = SHA256SUMS.txt ] || echo "- \`$f\`"; done
+            echo
+            echo "Build number: $(( $(echo "$VERSION" | cut -d. -f1) * 1000000 + $(echo "$VERSION" | cut -d. -f2) * 1000 + $(echo "$VERSION" | cut -d. -f3 | cut -d- -f1) ))"
+            [ "$IOS_RESULT" != "success" ] && echo && echo "> iOS build did not finish in this run; see the workflow logs."
+            echo
+            echo "$NOTES"
+          } > notes.md
+          gh release edit "$TAG" --notes-file notes.md --draft=false
+          echo "Published $TAG" >> "$GITHUB_STEP_SUMMARY"

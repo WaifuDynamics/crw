@@ -1,0 +1,6 @@
+tests
+embed
+scripts
+data
+**/__pycache__
+*.md

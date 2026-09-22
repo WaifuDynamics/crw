@@ -1,0 +1,21 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'app.crwplus.alarm'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.crwalarm"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+}
+
+dependencies {
+  // NotificationCompat, ServiceCompat: the full-screen intent and the foreground service
+  // type both changed shape between Android 8 and 14, and the compat wrappers hide that.
+  implementation 'androidx.core:core-ktx:1.13.1'
+}

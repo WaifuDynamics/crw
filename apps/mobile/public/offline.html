@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#08090B" />
+    <title>CRW+ — Offline</title>
+    <style>
+      html, body { height: 100%; margin: 0; background: #08090B; color: #F7F8FA; }
+      body {
+        display: flex; align-items: center; justify-content: center; text-align: center;
+        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        padding: 24px; box-sizing: border-box;
+      }
+      img { width: 88px; height: 88px; border-radius: 20px; }
+      h1 {
+        font-family: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif; font-style: italic;
+        font-weight: 700; font-size: 48px; line-height: 1; margin: 28px 0 12px; text-transform: uppercase;
+      }
+      p { color: #969AA3; font-size: 14px; line-height: 1.6; max-width: 300px; margin: 0 auto 28px; }
+      button {
+        background: #168BFF; color: #fff; border: 0; border-radius: 14px; padding: 16px 32px;
+        font: 700 15px Inter, system-ui, sans-serif; cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon-192.png" alt="CRW+" />
+      <h1>You're offline.</h1>
+      <p>CRW+ needs a connection for activities, matches and your stats. We'll be right here when you're back.</p>
+      <button onclick="location.reload()">Try again</button>
+    </main>
+    <script>
+      addEventListener('online', () => location.reload());
+    </script>
+  </body>
+</html>
